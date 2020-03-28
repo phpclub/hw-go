@@ -43,6 +43,23 @@ func TestUnpack(t *testing.T) {
 	}
 }
 
+func TestUnpackWithSpecialChars(t *testing.T) {
+	for _, tst := range [...]test{
+		{
+			input:    "a4bc2d$e",
+			expected: "aaaabccde",
+		},
+		{
+			input:    "ab#cd\n",
+			expected: "abcd",
+		},
+	} {
+		result, err := Unpack(tst.input)
+		require.Equal(t, tst.err, err)
+		require.Equal(t, tst.expected, result)
+	}
+}
+
 func TestUnpackWithEscape(t *testing.T) {
 	t.Skip() // Remove if task with asterisk completed
 
