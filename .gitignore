@@ -5,6 +5,10 @@
 *.dll
 *.so
 *.dylib
+go-cp
+go-envdir
+go-validate
+go-telnet
 
 # Test binary, build with `go test -c`
 *.test
@@ -21,6 +25,3 @@
 .Trashes
 ehthumbs.db
 Thumbs.db
-/bin/
-/pkg/
-/src/
