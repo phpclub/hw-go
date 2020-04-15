@@ -20,3 +20,7 @@
 
 ---
 [Инструкция как сдать ДЗ](./HOWTO.md).
+---
+Авторы ДЗ:
+- [Дмитрий Смаль](https://github.com/mialinx)
+- [Антон Телышев](https://github.com/Antonboom)
