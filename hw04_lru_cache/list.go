@@ -42,14 +42,14 @@ func (l *list) Front() *ListItem {
 	if l.length == 0 {
 		return nil
 	}
-	return l.tail
+	return l.head
 }
 
 func (l *list) Back() *ListItem {
 	if l.length == 0 {
 		return nil
 	}
-	return l.head
+	return l.tail
 }
 
 func (l *list) PushFront(v interface{}) *ListItem {
@@ -58,8 +58,8 @@ func (l *list) PushFront(v interface{}) *ListItem {
 		l.head = item
 		l.tail = item
 	} else {
-		fi := l.tail
-		l.tail = item
+		fi := l.head
+		l.head = item
 		fi.Next = item
 		item.Prev = fi
 	}
@@ -73,8 +73,8 @@ func (l *list) PushBack(v interface{}) *ListItem {
 		l.tail = item
 		l.head = item
 	} else {
-		ti := l.head
-		l.head = item
+		ti := l.tail
+		l.tail = item
 		ti.Prev = item
 		item.Next = ti
 	}
@@ -88,10 +88,10 @@ func (l *list) Remove(i *ListItem) {
 	switch {
 	case hi == nil:
 		ti.Prev = i.Prev
-		l.head = ti
+		l.tail = ti
 	case ti == nil:
 		hi.Next = i.Next
-		l.tail = hi
+		l.head = hi
 	default:
 		hi.Next = i.Next
 		ti.Prev = i.Prev
