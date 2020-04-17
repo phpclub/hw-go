@@ -7,8 +7,13 @@ import (
 
 const TopLimit = 10
 
+type tWords struct {
+	Name  string
+	Count int
+}
+
 func Top10(sInput string) []string {
-	aResult := make([]string, 0)
+	aResult := make([]string, 0, TopLimit)
 	if len(sInput) == 0 {
 		return aResult
 	}
@@ -20,13 +25,7 @@ func Top10(sInput string) []string {
 	// Заполним map уникальными словами
 	mWords := make(map[string]int)
 	for _, sWord := range strings.Split(sFilteredInput, " ") {
-		_, ok := mWords[sWord]
-		// Если значение уже задано - инкрементируем счетчик
-		if ok {
-			mWords[sWord]++
-		} else {
-			mWords[sWord] = 1
-		}
+		mWords[sWord]++
 	}
 
 	// Сделал дополнительный тест если передали короткий текст для анализа, нет смысла продолжать
@@ -38,11 +37,8 @@ func Top10(sInput string) []string {
 	}
 
 	// Мы не можем сортировать внутри map - переложим полученный результат в структуру и применим sort.Slice
-	type tWords struct {
-		Name  string
-		Count int
-	}
-	stWords := make([]tWords, 0)
+
+	stWords := make([]tWords, 0, len(mWords))
 	for kWord, Count := range mWords {
 		stWords = append(stWords, tWords{kWord, Count})
 	}
