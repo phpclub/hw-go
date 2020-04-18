@@ -15,6 +15,8 @@ type List interface {
 	Remove(i *ListItem)
 	// переместить элемент в начало
 	MoveToFront(i *ListItem)
+	// переместить элемент в начало
+	MoveToBack(i *ListItem)
 }
 
 type ListItem struct {
@@ -101,6 +103,11 @@ func (l *list) Remove(i *ListItem) {
 
 func (l *list) MoveToFront(i *ListItem) {
 	l.PushFront(i.Value)
+	l.Remove(i)
+}
+
+func (l *list) MoveToBack(i *ListItem) {
+	l.PushBack(i.Value)
 	l.Remove(i)
 }
 

@@ -48,4 +48,18 @@ func TestList(t *testing.T) {
 		}
 		require.Equal(t, []int{50, 30, 10, 40, 60, 80, 70}, elems)
 	})
+	// Играем в пинг-понг ;-)
+	t.Run("ping pong", func(t *testing.T) {
+		l := NewList()
+		l.PushFront("left") // "left"
+		l.PushBack("net")   // ["left", "net"]
+		l.PushBack("right") // ["left", "net", "right"]
+		l.PushFront("ball") // Шарик у левого игрока
+		require.Equal(t, "ball", l.Front().Value)
+		require.Equal(t, l.Len(), 4)
+		ball := l.Front()
+		l.MoveToBack(ball) // Мяч переходит к правому игроку
+		require.Equal(t, "ball", l.Back().Value)
+		require.Equal(t, l.Len(), 4)
+	})
 }
