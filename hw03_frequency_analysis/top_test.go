@@ -43,6 +43,9 @@ var text = `Как видите, он  спускается  по  лестни�
 	посидеть у огня и послушать какую-нибудь интересную сказку.
 		В этот вечер...`
 
+var shortText = `Словом		теперь 		мишку 
+зовут Винни-Пух`
+
 func TestTop10(t *testing.T) {
 	t.Run("no words in empty string", func(t *testing.T) {
 		assert.Len(t, Top10(""), 0)
@@ -56,5 +59,11 @@ func TestTop10(t *testing.T) {
 			expected := []string{"он", "и", "а", "что", "ты", "не", "если", "-", "то", "Кристофер"}
 			assert.ElementsMatch(t, expected, Top10(text))
 		}
+	})
+
+	t.Run("dict too small", func(t *testing.T) {
+		assert.Len(t, Top10(shortText), 5)
+		expected := []string{"Словом", "теперь", "мишку", "зовут", "Винни-Пух"}
+		assert.ElementsMatch(t, expected, Top10(shortText))
 	})
 }
