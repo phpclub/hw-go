@@ -13,10 +13,11 @@ type List interface {
 	PushBack(v interface{}) *ListItem
 	// удалить элемент
 	Remove(i *ListItem)
-	// переместить элемент в начало
+	//deprecated
+	MoveToFrontBad(i *ListItem)
+	// переместить элемент в начало - ошибочная реализация
 	MoveToFront(i *ListItem)
 	// переместить элемент в начало
-	MoveToBack(i *ListItem)
 }
 
 type ListItem struct {
@@ -85,8 +86,8 @@ func (l *list) PushBack(v interface{}) *ListItem {
 }
 
 func (l *list) Remove(i *ListItem) {
-	hi := i.Prev // 10
-	ti := i.Next //30
+	hi := i.Prev
+	ti := i.Next
 	switch {
 	case hi == nil:
 		ti.Prev = i.Prev
@@ -101,14 +102,39 @@ func (l *list) Remove(i *ListItem) {
 	l.length--
 }
 
-func (l *list) MoveToFront(i *ListItem) {
+func (l *list) MoveToFrontBad(i *ListItem) {
+	// Эти действия не переместят переданный item в начало списка, а создадут новый item с таким же значением.
+	// Это будет плохо работать в связке с LRU кэшем. Это создает лишнюю нагрузку на GC.
+	// https://github.com/phpclub/hw-go/pull/5#discussion_r410689294
 	l.PushFront(i.Value)
 	l.Remove(i)
 }
 
-func (l *list) MoveToBack(i *ListItem) {
-	l.PushBack(i.Value)
-	l.Remove(i)
+func (l *list) MoveToFront(i *ListItem) {
+	// Замена функции MoveToFrontBad - которая не перемещала - а пересоздавала элементы
+	//проверим что мы и так в начале
+	if l.head == i {
+		return
+	}
+	// Схлопнем лист на месте перемещаемого элемента
+	hi := i.Prev
+	ti := i.Next
+	switch {
+	case hi == nil:
+		ti.Prev = i.Prev
+		l.tail = ti
+	case ti == nil:
+		hi.Next = i.Next
+		l.head = hi
+	default:
+		hi.Next = i.Next
+		ti.Prev = i.Prev
+	}
+	// Поставим элемент в начало
+	l.head.Next = i
+	i.Next = nil
+	i.Prev = l.head
+	l.head = i
 }
 
 func NewList() List {

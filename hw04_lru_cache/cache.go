@@ -11,9 +11,9 @@ type Cache interface {
 	Clear()
 }
 
-type cacheItem struct {
-	key   Key
-	value interface{}
+type ListItemValue struct {
+	iKey   Key
+	iValue interface{}
 }
 
 type lruCache struct {
@@ -22,7 +22,7 @@ type lruCache struct {
 	//очередь [последних используемых элементов] на основе двусвязного списка
 	queue List
 	//словарь, отображающий ключ (строка) на элемент очереди
-	items map[Key]cacheItem
+	items map[Key]*ListItem
 }
 
 //при добавлении элемента:
@@ -32,18 +32,24 @@ type lruCache struct {
 // последний элемент из очереди и его значение из словаря);
 // возвращаемое значение - флаг, присутствовал ли элемент в кэше.
 func (l lruCache) Set(key Key, value interface{}) bool {
-	item := cacheItem{key: key, value: value}
+	item := ListItem{Value: ListItemValue{iKey: key, iValue: value}}
 	_, bExists := l.Get(key)
 	if bExists {
-		l.items[key] = item
-		l.queue.PushFront(key)
+		l.items[key] = l.queue.PushFront(&item)
+		l.queue.MoveToFront(l.items[key])
 		return bExists
 	}
-	l.items[key] = item
-	l.queue.PushFront(key)
+	l.items[key] = l.queue.PushFront(&item)
 	if l.capacity < l.queue.Len() {
-		l.queue.Remove(l.queue.Back())
-		delete(l.items, key)
+		//тут была бага удаляем только что добавленный ключ а надо последний = l.queue.Back()
+		//delete(l.items, key)
+		removeItem := l.queue.Back()
+		if removeItem != nil {
+			l.queue.Remove(removeItem)
+			//Не придумал как удалить из map без перебора ключей
+			//решил сохранять ключ как часть значения ListItemValue
+			delete(l.items, removeItem.Value.(*ListItem).Value.(ListItemValue).iKey)
+		}
 	}
 	return bExists
 }
@@ -54,8 +60,10 @@ func (l lruCache) Set(key Key, value interface{}) bool {
 func (l lruCache) Get(key Key) (interface{}, bool) {
 	item, ok := l.items[key]
 	if ok {
-		l.queue.PushFront(key)
-		return item.value, true
+		l.queue.MoveToFront(item)
+		//Возможно тут можно сделать это более элегантно - но я об этом еще не знаю :-(
+		//Приходится кастовать интерфейсы
+		return item.Value.(*ListItem).Value.(ListItemValue).iValue, true
 	}
 	return nil, false
 }
@@ -65,13 +73,13 @@ func (l *lruCache) Clear() {
 	// Не верно было сбрасывать емкость при очистке, сделаем новую map - Go is a garbage collected language :-)
 	// l.capacity = 0
 	l.queue = NewList()
-	l.items = make(map[Key]cacheItem, l.capacity)
+	l.items = make(map[Key]*ListItem, l.capacity)
 }
 
 func NewCache(capacity int) Cache {
 	return &lruCache{
 		capacity: capacity,
 		queue:    NewList(),
-		items:    make(map[Key]cacheItem, capacity),
+		items:    make(map[Key]*ListItem, capacity),
 	}
 }
