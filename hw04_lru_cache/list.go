@@ -13,11 +13,8 @@ type List interface {
 	PushBack(v interface{}) *ListItem
 	// удалить элемент
 	Remove(i *ListItem)
-	//deprecated
-	MoveToFrontBad(i *ListItem)
-	// переместить элемент в начало - ошибочная реализация
-	MoveToFront(i *ListItem)
 	// переместить элемент в начало
+	MoveToFront(i *ListItem)
 }
 
 type ListItem struct {
@@ -102,17 +99,7 @@ func (l *list) Remove(i *ListItem) {
 	l.length--
 }
 
-func (l *list) MoveToFrontBad(i *ListItem) {
-	// Эти действия не переместят переданный item в начало списка, а создадут новый item с таким же значением.
-	// Это будет плохо работать в связке с LRU кэшем. Это создает лишнюю нагрузку на GC.
-	// https://github.com/phpclub/hw-go/pull/5#discussion_r410689294
-	l.PushFront(i.Value)
-	l.Remove(i)
-}
-
 func (l *list) MoveToFront(i *ListItem) {
-	// Замена функции MoveToFrontBad - которая не перемещала - а пересоздавала элементы
-	//проверим что мы и так в начале
 	if l.head == i {
 		return
 	}

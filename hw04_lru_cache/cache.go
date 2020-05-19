@@ -35,19 +35,14 @@ func (l lruCache) Set(key Key, value interface{}) bool {
 	item := ListItem{Value: ListItemValue{iKey: key, iValue: value}}
 	_, bExists := l.Get(key)
 	if bExists {
-		l.items[key] = l.queue.PushFront(&item)
-		l.queue.MoveToFront(l.items[key])
+		l.items[key].Value = &item
 		return bExists
 	}
 	l.items[key] = l.queue.PushFront(&item)
 	if l.capacity < l.queue.Len() {
-		//тут была бага удаляем только что добавленный ключ а надо последний = l.queue.Back()
-		//delete(l.items, key)
 		removeItem := l.queue.Back()
 		if removeItem != nil {
 			l.queue.Remove(removeItem)
-			//Не придумал как удалить из map без перебора ключей
-			//решил сохранять ключ как часть значения ListItemValue
 			delete(l.items, removeItem.Value.(*ListItem).Value.(ListItemValue).iKey)
 		}
 	}
@@ -61,8 +56,6 @@ func (l lruCache) Get(key Key) (interface{}, bool) {
 	item, ok := l.items[key]
 	if ok {
 		l.queue.MoveToFront(item)
-		//Возможно тут можно сделать это более элегантно - но я об этом еще не знаю :-(
-		//Приходится кастовать интерфейсы
 		return item.Value.(*ListItem).Value.(ListItemValue).iValue, true
 	}
 	return nil, false
@@ -71,8 +64,6 @@ func (l lruCache) Get(key Key) (interface{}, bool) {
 // для очистки текущего кеша надо передавать
 // ссылку иначе мы ничего не очистим.
 func (l *lruCache) Clear() {
-	// Не верно было сбрасывать емкость при очистке, сделаем новую map - Go is a garbage collected language :-)
-	// l.capacity = 0
 	l.queue = NewList()
 	l.items = make(map[Key]*ListItem, l.capacity)
 }

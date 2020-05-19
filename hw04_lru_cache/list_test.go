@@ -51,7 +51,7 @@ func TestList(t *testing.T) {
 	})
 }
 
-func internalTestMoveFront(t *testing.T, call string) {
+func TestMoveFront(t *testing.T) {
 	// Инит
 	l := NewList()
 
@@ -69,14 +69,7 @@ func internalTestMoveFront(t *testing.T, call string) {
 	}
 	println("==^ Before ^ ==")
 	middle := l.Back().Next // 40
-	switch call {
-	case "MoveToFront":
-		l.MoveToFront(middle)
-	case "MoveToFrontBad":
-		l.MoveToFrontBad(middle)
-	default:
-		panic("Unknow call")
-	}
+	l.MoveToFront(middle)
 	elems := make([]int, 0, l.Len())
 	for i := l.Back(); i != nil; i = i.Next {
 		println(fmt.Sprintf("Pointers %d: %p %v", i.Value.(int), i, i))
@@ -86,29 +79,7 @@ func internalTestMoveFront(t *testing.T, call string) {
 	//Типа все хорошо, значения ожидаемы
 	require.Equal(t, []int{50, 30, 20, 10, 40}, elems)
 
-	switch call {
-	case "MoveToFront":
-		require.Truef(t,
-			*middle == *l.Front(),
-			fmt.Sprintf("Pointers not equal %p != %p", &*middle, &*l.Front()))
-	case "MoveToFrontBad":
-		//Но на самом деле мы создали новый элемент, а не переместили его
-		//Проверяем что указатели не равны
-		require.Falsef(t,
-			*middle == *l.Front(),
-			fmt.Sprintf("Pointers equal %p == %p", &*middle, &*l.Front()))
-	}
-}
-
-// Написать тест, что MoveFront перемещает, а не пересоздает элемент.
-// Убедиться, что тест падает.
-// Пофиксить код и убедиться, что тест проходит.
-// https://github.com/phpclub/hw-go/pull/5#pullrequestreview-395906126
-// Решил оставить оба теста для наглядности
-func TestMoveFrontBad(t *testing.T) {
-	internalTestMoveFront(t, "MoveToFrontBad")
-}
-
-func TestMoveFront(t *testing.T) {
-	internalTestMoveFront(t, "MoveToFront")
+	require.Truef(t,
+		*middle == *l.Front(),
+		fmt.Sprintf("Pointers not equal %p != %p", &*middle, &*l.Front()))
 }
