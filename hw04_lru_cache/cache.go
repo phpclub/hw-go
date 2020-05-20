@@ -35,7 +35,7 @@ func (l lruCache) Set(key Key, value interface{}) bool {
 	item := ListItem{Value: ListItemValue{iKey: key, iValue: value}}
 	_, bExists := l.Get(key)
 	if bExists {
-		l.items[key].Value = &item
+		l.updateItemValue(key, value)
 		return bExists
 	}
 	l.items[key] = l.queue.PushFront(&item)
@@ -47,6 +47,16 @@ func (l lruCache) Set(key Key, value interface{}) bool {
 		}
 	}
 	return bExists
+}
+
+// Обновление значения по ключу
+func (l lruCache) updateItemValue(key Key, value interface{}) bool {
+	item, ok := l.items[key]
+	if ok {
+		item.Value.(*ListItem).Value = ListItemValue{iKey: key, iValue: value}
+		return true
+	}
+	return false
 }
 
 // при получении элемента:
