@@ -31,7 +31,7 @@ type lruCache struct {
 // (при этом, если размер очереди больше ёмкости кэша, то необходимо удалить
 // последний элемент из очереди и его значение из словаря);
 // возвращаемое значение - флаг, присутствовал ли элемент в кэше.
-func (l lruCache) Set(key Key, value interface{}) bool {
+func (l *lruCache) Set(key Key, value interface{}) bool {
 	item := ListItem{Value: ListItemValue{iKey: key, iValue: value}}
 	_, bExists := l.Get(key)
 	if bExists {
@@ -50,7 +50,7 @@ func (l lruCache) Set(key Key, value interface{}) bool {
 }
 
 // Обновление значения по ключу
-func (l lruCache) updateItemValue(key Key, value interface{}) bool {
+func (l *lruCache) updateItemValue(key Key, value interface{}) bool {
 	item, ok := l.items[key]
 	if ok {
 		item.Value.(*ListItem).Value = ListItemValue{iKey: key, iValue: value}
@@ -62,7 +62,7 @@ func (l lruCache) updateItemValue(key Key, value interface{}) bool {
 // при получении элемента:
 // если элемент присутствует в словаре, то переместить элемент в начало очереди и вернуть его значение и true;
 // если элемента нет в словаре, то вернуть nil и false (работа с кешом похожа на работу с map).
-func (l lruCache) Get(key Key) (interface{}, bool) {
+func (l *lruCache) Get(key Key) (interface{}, bool) {
 	item, ok := l.items[key]
 	if ok {
 		l.queue.MoveToFront(item)
