@@ -49,7 +49,7 @@ func (l *lruCache) Set(key Key, value interface{}) bool {
 	return bExists
 }
 
-// Обновление значения по ключу
+// Обновление значения по ключу.
 func (l *lruCache) updateItemValue(key Key, value interface{}) bool {
 	item, ok := l.items[key]
 	if ok {
