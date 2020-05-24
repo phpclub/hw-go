@@ -1,6 +1,7 @@
 package hw04_lru_cache //nolint:golint,stylecheck
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -48,4 +49,37 @@ func TestList(t *testing.T) {
 		}
 		require.Equal(t, []int{50, 30, 10, 40, 60, 80, 70}, elems)
 	})
+}
+
+func TestMoveFront(t *testing.T) {
+	// Инит
+	l := NewList()
+
+	// Тестовые данные
+	l.PushFront(10) // [10]
+	l.PushBack(20)  // [10, 20]
+	l.PushBack(30)  // [10, 20, 30]
+	l.PushBack(40)  // [10, 20, 30, 40]
+	l.PushBack(50)  // [10, 20, 30, 40, 50]
+
+	// Отладка для проверки
+	for i := l.Back(); i != nil; i = i.Next {
+		println(fmt.Sprintf("Pointers %d: %p %v", i.Value.(int), i, i))
+
+	}
+	println("==^ Before ^ ==")
+	middle := l.Back().Next // 40
+	l.MoveToFront(middle)
+	elems := make([]int, 0, l.Len())
+	for i := l.Back(); i != nil; i = i.Next {
+		println(fmt.Sprintf("Pointers %d: %p %v", i.Value.(int), i, i))
+		elems = append(elems, i.Value.(int))
+	}
+	println("==^ After ^ ==")
+	//Типа все хорошо, значения ожидаемы
+	require.Equal(t, []int{50, 30, 20, 10, 40}, elems)
+
+	require.Truef(t,
+		*middle == *l.Front(),
+		fmt.Sprintf("Pointers not equal %p != %p", &*middle, &*l.Front()))
 }
