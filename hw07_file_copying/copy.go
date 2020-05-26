@@ -41,9 +41,7 @@ func Copy(fromPath string, toPath string, offset, limit int64) error {
 	if offset > fileFromStat.Size() {
 		return ErrOffsetExceedsFileSize
 	}
-	if limit == 0 {
-		limit = fileFromStat.Size()
-	} else if limit > fileFromStat.Size() {
+	if limit == 0 || limit > fileFromStat.Size() {
 		limit = fileFromStat.Size()
 	}
 	// Обработаем fileTo
@@ -55,7 +53,7 @@ func Copy(fromPath string, toPath string, offset, limit int64) error {
 
 	if offset > 0 {
 		//Перемотаем позицию файла
-		_, err := fileFrom.Seek(offset, 0)
+		_, err := fileFrom.Seek(offset, io.SeekStart)
 		if err != nil {
 			return ErrOffsetExceedsFileSize
 		}
