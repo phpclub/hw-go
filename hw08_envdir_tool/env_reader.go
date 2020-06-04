@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -18,23 +19,20 @@ type Environment map[string]string
 // ReadDir reads a specified directory and returns map of env variables.
 // Variables represented as files where filename is name of variable, file first line is a value.
 func ReadDir(dir string) (Environment, error) {
-	if !strings.HasSuffix(dir, "/") {
-		dir += "/"
-	}
 	files, err := ioutil.ReadDir(dir)
-	deprecatedSymbol := "="
+	unallowedSymbol := "="
 	if err != nil {
-		return Environment{}, ErrFailedReadDir
+		return Environment{}, fmt.Errorf("%w: %v", ErrFailedReadDir, err)
 	}
 	// Создадим map с размером на кол-во найденных файлов
 	cfgEnv := make(map[string]string, len(files))
 	for _, file := range files {
 		// имя файла не должно содержать =
-		if !strings.ContainsAny(file.Name(), deprecatedSymbol) {
+		if !strings.ContainsAny(file.Name(), unallowedSymbol) {
 			// Получим первую строку из файла
-			content, err := readLineFromFile(dir + file.Name())
+			content, err := readLineFromFile(dir + "/" + file.Name())
 			if err != nil {
-				return Environment{}, ErrFailedReadFile
+				return nil, ErrFailedReadFile
 			}
 			cfgEnv[file.Name()] = content
 		}

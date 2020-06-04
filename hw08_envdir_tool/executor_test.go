@@ -1,11 +1,11 @@
 package main
 
 import (
-	"fmt"
-	"github.com/stretchr/testify/require"
 	"io/ioutil"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestRunCmd(t *testing.T) {
@@ -40,9 +40,10 @@ func TestRunCmd(t *testing.T) {
 	})
 
 	t.Run("With environment case", func(t *testing.T) {
+		tempFile := "test.tmp"
+		defer os.Remove(tempFile)
 		testEnv := make(map[string]string)
 		testCmd := make([]string, 0)
-		tempFile := "test.tmp"
 		testCmd = append(testCmd, "./testEnv.sh")
 		testEnv["TEST"] = "ENV_OK"
 
@@ -50,10 +51,7 @@ func TestRunCmd(t *testing.T) {
 
 		require.Equal(t, 0, returnCode)
 		b, err := ioutil.ReadFile(tempFile)
-		if err != nil {
-			fmt.Print(err)
-		}
+		require.NoError(t, err)
 		require.Equal(t, "ENV_OK\n", string(b))
-		os.Remove(tempFile)
 	})
 }

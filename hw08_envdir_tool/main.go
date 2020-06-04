@@ -2,7 +2,7 @@ package main
 
 import (
 	"errors"
-	"fmt"
+	"log"
 	"os"
 )
 
@@ -11,45 +11,21 @@ var (
 	ErrMissingComand         = errors.New("missing command to execute")
 )
 
-const requiredArgs = 2
-
-// получение аргументов из командной строки.
-func parseArgs() (dir string, command []string, err error) {
-	// Проверим на наличие обязательных аргументов
-	parseCommand := make([]string, 0)
-	incomingArgs := os.Args[1:]
-	if len(incomingArgs) >= requiredArgs {
-		if len(incomingArgs[0]) > 0 {
-			dir = incomingArgs[0]
-		}
-		if len(incomingArgs[1]) > 0 {
-			parseCommand = append(parseCommand, incomingArgs[1])
-		}
-	} else {
-		switch len(incomingArgs) {
-		case 0:
-			err = ErrMissingDestinationDir
-		case 1:
-			err = ErrMissingComand
-		}
-		return dir, parseCommand, err
-	}
-	if len(incomingArgs[2:]) > 0 {
-		parseCommand = append(parseCommand, incomingArgs[2:]...)
-	}
-	return dir, parseCommand, err
-}
-
 func main() {
-	dir, customCmd, err := parseArgs()
-	if err != nil {
-		fmt.Println(err.Error())
-		return
+	switch len(os.Args) {
+	// Выведем ошибку если нет переданных аргументов
+	case 1:
+		log.Fatal(ErrMissingDestinationDir)
+	case 2: //nolint:gomnd
+		log.Fatal(ErrMissingComand)
 	}
-	cmdEnv, err := ReadDir(dir)
+	dirPath, customCmd := os.Args[1], os.Args[2:]
+
+	cmdEnv, err := ReadDir(dirPath)
+
 	if err != nil {
-		fmt.Println(err.Error())
-		return
+		log.Fatal(err)
 	}
+
 	RunCmd(customCmd, cmdEnv)
 }
