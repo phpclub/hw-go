@@ -21,7 +21,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// serveCmd represents the serve command
+// serveCmd represents the serve command.
 var serveCmd = &cobra.Command{
 	Use:   "serve",
 	Short: "A brief description of your command",

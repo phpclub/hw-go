@@ -15,7 +15,7 @@ limitations under the License.
 */
 package main
 
-import "github.com/phpclub/tree/master/hw-go/hw12_13_14_15_calendar/cmd"
+import "github.com/phpclub/hw-go/hw12_13_14_15_calendar/cmd"
 
 func main() {
 	cmd.Execute()
